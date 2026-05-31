@@ -147,6 +147,14 @@ export const Home: React.FC = () => {
 		}
 	};
 
+	const handlePostDeleted = (postId: string) => {
+		setPosts((prev) => prev.filter((post) => post._id !== postId));
+	};
+
+	const handlePostUpdated = (updated: (typeof posts)[0]) => {
+		setPosts((prev) => prev.map((post) => (post._id === updated._id ? { ...post, ...updated } : post)));
+	};
+
 	const onSubmit = async (data: PostForm) => {
 		if (!isLoggedIn) return notify.info('Please login first');
 		try {
@@ -379,7 +387,13 @@ export const Home: React.FC = () => {
 							}}
 							viewport={{ once: true }}
 						>
-							<PostCard post={post} onLike={handleLike} onUnlike={handleUnlike} />
+							<PostCard
+								post={post}
+								onLike={handleLike}
+								onUnlike={handleUnlike}
+								onDeleted={handlePostDeleted}
+								onUpdated={handlePostUpdated}
+							/>
 						</motion.div>
 					))}
 				</AnimatePresence>

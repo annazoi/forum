@@ -145,7 +145,7 @@
 }
 
 .Toastify__toast-container {
-	z-index: 9999;
+	z-index: 10000;
 	font-family: var(--font-body);
 }
 
@@ -254,4 +254,19 @@
 	border-radius: 9999px;
 	background: var(--color-signal);
 	opacity: 1;
+}
+
+.reel-filter-swiper {
+	overflow: visible;
+	touch-action: pan-x;
+	padding-top: 0.5rem;
+	padding-bottom: 0.25rem;
+}
+
+.reel-filter-swiper .swiper-wrapper {
+	align-items: flex-end;
+}
+
+.reel-filter-rail {
+	overflow: hidden;
 }

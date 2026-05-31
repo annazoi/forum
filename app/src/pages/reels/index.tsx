@@ -92,6 +92,14 @@ export const Reels: React.FC = () => {
 		}
 	};
 
+	const handleReelDeleted = (reelId: string) => {
+		setReels((prev) => prev.filter((reel) => reel._id !== reelId));
+	};
+
+	const handleReelUpdated = (updated: (typeof reels)[0]) => {
+		setReels((prev) => prev.map((reel) => (reel._id === updated._id ? { ...reel, ...updated } : reel)));
+	};
+
 	const handlePublish = async (video: Blob | File, description: string) => {
 		try {
 			const res = await createReel({ video, description, visibility });
@@ -120,13 +128,24 @@ export const Reels: React.FC = () => {
 
 	return (
 		<div className="relative flex flex-col h-[calc(100dvh-52px)] sm:h-[calc(100vh-52px)] bg-surface dark:bg-void">
+			<div className="shrink-0 flex items-center justify-end px-4 py-2.5 border-b border-border-subtle dark:border-void-border bg-surface/90 dark:bg-void/90 backdrop-blur-sm">
+				<motion.button
+					whileTap={{ scale: 0.96 }}
+					onClick={() => setView('create')}
+					className="flex items-center gap-1.5 bg-relay text-white rounded-full py-2 px-4 font-display font-semibold text-sm relay-glow"
+				>
+					<HiPlus className="w-4 h-4" />
+					<span>Create</span>
+				</motion.button>
+			</div>
+
 			<div
 				id="reels-scroll"
 				onScroll={handleScroll}
 				className="flex-1 overflow-y-auto snap-y snap-mandatory no-scrollbar"
 			>
 				{reels.length === 0 && !loading ? (
-					<div className="snap-start h-[calc(100dvh-52px)] sm:h-[calc(100vh-52px)] flex flex-col items-center justify-center px-8 text-center">
+					<div className="snap-start h-full min-h-[420px] flex flex-col items-center justify-center px-8 text-center">
 						<div className="w-14 h-14 rounded-2xl bg-relay/10 flex items-center justify-center mb-4">
 							<HiFilm className="w-7 h-7 text-relay" />
 						</div>
@@ -145,7 +164,14 @@ export const Reels: React.FC = () => {
 				) : (
 					<AnimatePresence mode="popLayout">
 						{reels.map((reel) => (
-							<ReelCard key={reel._id} reel={reel} onLike={handleLike} onUnlike={handleUnlike} />
+							<ReelCard
+								key={reel._id}
+								reel={reel}
+								onLike={handleLike}
+								onUnlike={handleUnlike}
+								onDeleted={handleReelDeleted}
+								onUpdated={handleReelUpdated}
+							/>
 						))}
 					</AnimatePresence>
 				)}
@@ -156,15 +182,6 @@ export const Reels: React.FC = () => {
 					</div>
 				)}
 			</div>
-
-			<motion.button
-				whileTap={{ scale: 0.92 }}
-				onClick={() => setView('create')}
-				className="absolute bottom-6 right-5 z-10 w-14 h-14 rounded-full bg-relay text-white flex items-center justify-center shadow-lg shadow-relay/40 relay-glow"
-				aria-label="Create reel"
-			>
-				<HiPlus className="w-7 h-7" />
-			</motion.button>
 		</div>
 	);
 };

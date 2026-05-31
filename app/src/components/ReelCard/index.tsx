@@ -10,6 +10,7 @@ import {
 } from 'react-icons/hi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authStore } from '../../store/auth';
+import { PostActionsMenu } from '../PostActionsMenu';
 
 interface ReelCardProps {
 	reel: {
@@ -19,6 +20,7 @@ interface ReelCardProps {
 		date: string;
 		likes: string[];
 		comments: any[];
+		visibility?: 'public' | 'private';
 		creatorId: {
 			_id: string;
 			username: string;
@@ -29,9 +31,11 @@ interface ReelCardProps {
 	};
 	onLike: (id: string) => void;
 	onUnlike: (id: string) => void;
+	onDeleted?: (postId: string) => void;
+	onUpdated?: (reel: ReelCardProps['reel']) => void;
 }
 
-export const ReelCard: React.FC<ReelCardProps> = ({ reel, onLike, onUnlike }) => {
+export const ReelCard: React.FC<ReelCardProps> = ({ reel, onLike, onUnlike, onDeleted, onUpdated }) => {
 	const { userId } = authStore();
 	const containerRef = useRef<HTMLElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -39,6 +43,7 @@ export const ReelCard: React.FC<ReelCardProps> = ({ reel, onLike, onUnlike }) =>
 	const [playing, setPlaying] = useState(false);
 
 	const isLiked = userId ? reel.likes.includes(userId) : false;
+	const isOwner = !!userId && String(reel.creatorId?._id) === String(userId);
 	const username = reel.creatorId?.username || 'user';
 	const name = reel.creatorId?.name || 'User';
 	const surname = reel.creatorId?.surname || '';
@@ -83,7 +88,7 @@ export const ReelCard: React.FC<ReelCardProps> = ({ reel, onLike, onUnlike }) =>
 			layout
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
-			className="relative snap-start snap-always h-[calc(100dvh-52px)] sm:h-[calc(100vh-52px)] w-full shrink-0"
+			className="relative snap-start snap-always min-h-full w-full shrink-0"
 		>
 			{reel.video ? (
 				<video
@@ -102,6 +107,21 @@ export const ReelCard: React.FC<ReelCardProps> = ({ reel, onLike, onUnlike }) =>
 			)}
 
 			<div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20 pointer-events-none" />
+
+			{isOwner && (
+				<div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] right-3 z-20">
+					<PostActionsMenu
+						postId={reel._id}
+						description={reel.description}
+						visibility={reel.visibility}
+						isOwner={isOwner}
+						contentType="reel"
+						variant="overlay"
+						onDeleted={onDeleted}
+						onUpdated={(updated) => onUpdated?.({ ...reel, ...updated })}
+					/>
+				</div>
+			)}
 
 			{!playing && reel.video && (
 				<div className="absolute inset-0 flex items-center justify-center pointer-events-none">

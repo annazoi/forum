@@ -25,7 +25,16 @@ app.use(
 		extended: true,
 	}),
 );
-app.use(cors());
+app.use((req, res, next) => {
+	res.setHeader('Access-Control-Allow-Private-Network', 'true');
+	next();
+});
+app.use(
+	cors({
+		origin: true,
+		credentials: true,
+	}),
+);
 
 // Import the Routes
 app.use('/posts', postRoutes);

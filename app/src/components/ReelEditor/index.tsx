@@ -8,6 +8,8 @@ import {
 	HiOutlineLockClosed,
 } from 'react-icons/hi';
 import { useVideoRecorder } from '../../hooks/use-video-recorder';
+import { usesCanvasPipeline } from '../../lib/video-filters';
+import { FilterStrip } from './FilterStrip';
 import { Button } from '../ui/Button';
 import { notify } from '../../utils/toast';
 
@@ -26,8 +28,8 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 	visibility,
 	onVisibilityChange,
 }) => {
-	const videoRef = useRef<HTMLVideoElement>(null);
 	const fileRef = useRef<HTMLInputElement>(null);
+	const previewVideoRef = useRef<HTMLVideoElement>(null);
 	const [description, setDescription] = useState('');
 	const [step, setStep] = useState<'record' | 'preview'>('record');
 
@@ -46,21 +48,43 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 		clearPreview,
 		stopStream,
 		facingMode,
+		filterId,
+		setFilterId,
+		filters,
+		videoRef,
+		sourceVideoRef,
+		canvasRef,
 	} = useVideoRecorder();
+
+	const usingFilter = usesCanvasPipeline(filterId);
+	const mirrorCamera = facingMode === 'user';
 
 	useEffect(() => {
 		if (step !== 'record' || previewUrl) return;
-		startCamera().then((stream) => {
-			if (videoRef.current && stream) {
-				videoRef.current.srcObject = stream;
-			}
-		});
+		startCamera();
 		return () => stopStream();
-	}, [step, previewUrl, facingMode, startCamera, stopStream]);
+	}, [step, previewUrl, startCamera, stopStream]);
 
 	useEffect(() => {
 		if (previewUrl && videoBlob) setStep('preview');
 	}, [previewUrl, videoBlob]);
+
+	useEffect(() => {
+		if (step !== 'preview' || !previewUrl) return;
+		const el = previewVideoRef.current;
+		if (!el) return;
+		el.src = previewUrl;
+		el.load();
+		const play = () => {
+			el.play().catch(() => {
+				el.muted = true;
+				el.play().catch(() => {});
+			});
+		};
+		if (el.readyState >= 2) play();
+		else el.addEventListener('loadeddata', play, { once: true });
+		return () => el.removeEventListener('loadeddata', play);
+	}, [step, previewUrl]);
 
 	const handleRetake = () => {
 		clearPreview();
@@ -102,18 +126,28 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 			</div>
 
 			<div className="flex-1 relative overflow-hidden">
+				<video ref={sourceVideoRef} autoPlay muted playsInline className="hidden" />
+
 				{step === 'record' ? (
-					<video
-						ref={videoRef}
-						autoPlay
-						muted
-						playsInline
-						className="absolute inset-0 w-full h-full object-cover"
-					/>
+					usingFilter ? (
+						<canvas
+							ref={canvasRef}
+							className={`absolute inset-0 w-full h-full object-cover ${mirrorCamera ? 'scale-x-[-1]' : ''}`}
+						/>
+					) : (
+						<video
+							ref={videoRef}
+							autoPlay
+							muted
+							playsInline
+							className={`absolute inset-0 w-full h-full object-cover ${mirrorCamera ? 'scale-x-[-1]' : ''}`}
+						/>
+					)
 				) : (
 					previewUrl && (
 						<video
-							src={previewUrl}
+							ref={previewVideoRef}
+							key={previewUrl}
 							autoPlay
 							loop
 							playsInline
@@ -193,8 +227,12 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 				)}
 			</div>
 
+			{step === 'record' && !recording && (
+				<FilterStrip filters={filters} filterId={filterId} onSelect={setFilterId} />
+			)}
+
 			{step === 'record' && (
-				<div className="shrink-0 flex items-center justify-center gap-10 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] bg-black/60 backdrop-blur-sm">
+				<div className="shrink-0 flex items-center justify-center gap-10 pt-2 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] bg-black/60 backdrop-blur-sm">
 					<input
 						ref={fileRef}
 						type="file"

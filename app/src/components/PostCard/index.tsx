@@ -6,12 +6,12 @@ import {
 	HiHeart,
 	HiOutlineChatAlt,
 	HiOutlineShare,
-	HiOutlineDotsHorizontal,
 	HiOutlineGlobeAlt,
 } from 'react-icons/hi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authStore } from '../../store/auth';
 import { Lightbox } from '../ui/Lightbox';
+import { PostActionsMenu } from '../PostActionsMenu';
 
 interface PostCardProps {
 	post: {
@@ -34,12 +34,15 @@ interface PostCardProps {
 	};
 	onLike: (id: string) => void;
 	onUnlike: (id: string) => void;
+	onDeleted?: (postId: string) => void;
+	onUpdated?: (post: PostCardProps['post']) => void;
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike }) => {
+export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike, onDeleted, onUpdated }) => {
 	const { userId } = authStore();
 	const isLiked = userId ? post.likes.includes(userId) : false;
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+	const isOwner = !!userId && String(post.creatorId?._id) === String(userId);
 
 	const username = post.creatorId?.username || 'user';
 	const name = post.creatorId?.name || 'User';
@@ -95,12 +98,15 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike }) =>
 									<HiOutlineGlobeAlt className="w-3 h-3 text-ink-faint dark:text-cream-faint opacity-50" />
 								)}
 							</div>
-							<button
-								className="p-1.5 text-ink-faint dark:text-cream-faint hover:text-relay hover:bg-relay/8 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-								onClick={(e) => e.stopPropagation()}
-							>
-								<HiOutlineDotsHorizontal className="w-4 h-4" />
-							</button>
+							<PostActionsMenu
+								postId={post._id}
+								description={post.description}
+								visibility={post.visibility}
+								isOwner={isOwner}
+								contentType={post.type === 'reel' ? 'reel' : 'post'}
+								onDeleted={onDeleted}
+								onUpdated={(updated) => onUpdated?.({ ...post, ...updated })}
+							/>
 						</div>
 
 						<Link to={`/post/${post._id}`} className="block mt-1.5">

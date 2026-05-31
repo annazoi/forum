@@ -233,6 +233,14 @@ export const Search: React.FC = () => {
 		setRecent(next);
 	};
 
+	const handlePostDeleted = (postId: string) => {
+		setPosts((prev) => prev.filter((post) => post._id !== postId));
+	};
+
+	const handlePostUpdated = (updated: SearchPost) => {
+		setPosts((prev) => prev.map((post) => (post._id === updated._id ? { ...post, ...updated } : post)));
+	};
+
 	if (!isLoggedIn) {
 		return (
 			<div className="flex flex-col items-center justify-center min-h-[70vh] text-center p-8">
@@ -457,6 +465,8 @@ export const Search: React.FC = () => {
 										post={post}
 										onLike={likePost}
 										onUnlike={unlikePost}
+										onDeleted={handlePostDeleted}
+										onUpdated={handlePostUpdated}
 									/>
 								))}
 							</section>

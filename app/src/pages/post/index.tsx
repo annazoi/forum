@@ -69,6 +69,14 @@ export const Post: React.FC = () => {
 		}
 	};
 
+	const handlePostDeleted = () => {
+		navigate(-1);
+	};
+
+	const handlePostUpdated = (updated: any) => {
+		setPost((prev: any) => (prev ? { ...prev, ...updated } : prev));
+	};
+
 	useEffect(() => {
 		fetchPost();
 	}, [postId]);
@@ -99,7 +107,13 @@ export const Post: React.FC = () => {
 				<h1 className="font-display font-bold text-[17px] tracking-tight text-ink dark:text-cream">Thread</h1>
 			</div>
 
-			<PostCard post={post} onLike={handleLike} onUnlike={handleUnlike} />
+			<PostCard
+				post={post}
+				onLike={handleLike}
+				onUnlike={handleUnlike}
+				onDeleted={handlePostDeleted}
+				onUpdated={handlePostUpdated}
+			/>
 
 			{isLoggedIn && (
 				<div className="p-4 flex gap-3 bg-surface dark:bg-void">

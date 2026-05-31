@@ -22,6 +22,7 @@ router.post(
   postController.createReel
 );
 router.post("/", middleWare.protect, postController.createPost);
+router.put("/:id", middleWare.protect, postController.updatePost);
 router.delete("/:id", middleWare.protect, postController.deletePost);
 router.get("/", middleWare.extractUser, postController.getPosts);
 router.get("/reels", middleWare.extractUser, postController.getReels);

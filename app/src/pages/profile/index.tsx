@@ -145,6 +145,14 @@ export const Profile: React.FC = () => {
 		}
 	};
 
+	const handlePostDeleted = (postId: string) => {
+		setPosts((prev) => prev.filter((post) => post._id !== postId));
+	};
+
+	const handlePostUpdated = (updated: (typeof posts)[0]) => {
+		setPosts((prev) => prev.map((post) => (post._id === updated._id ? { ...post, ...updated } : post)));
+	};
+
 	const onSubmit = async (data: ProfileFormData) => {
 		try {
 			await updateUser(creatorId!, data);
@@ -293,7 +301,14 @@ export const Profile: React.FC = () => {
 					<div className="p-20 flex justify-center"><Spinner loading={postLoading} /></div>
 				) : posts.length > 0 ? (
 					posts.map((post) => (
-						<PostCard key={post._id} post={post} onLike={handleLike} onUnlike={handleUnlike} />
+						<PostCard
+							key={post._id}
+							post={post}
+							onLike={handleLike}
+							onUnlike={handleUnlike}
+							onDeleted={handlePostDeleted}
+							onUpdated={handlePostUpdated}
+						/>
 					))
 				) : (
 					<div className="p-24 text-center">

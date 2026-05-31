@@ -9,6 +9,11 @@ interface CreatePostData {
   visibility?: "public" | "private";
 }
 
+interface UpdatePostData {
+  description?: string;
+  visibility?: "public" | "private";
+}
+
 interface CommentData {
   description: string;
 }
@@ -93,6 +98,19 @@ export const usePostHook = () => {
     }
   }, [token]);
 
+  const updatePost = useCallback(async (postId: string, data: UpdatePostData) => {
+    try {
+      setLoading(true);
+      const response = await Axios.put(`${API_URL}posts/${postId}`, data, config);
+      return response.data?.post ?? null;
+    } catch {
+      setError("Could not update post");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
   const createComment = useCallback(async (data: CommentData, postId: string) => {
     try {
       setLoading(true);
@@ -110,6 +128,7 @@ export const usePostHook = () => {
     getPosts,
     getPost,
     deletePost,
+    updatePost,
     createComment,
     likePost,
     unlikePost,
