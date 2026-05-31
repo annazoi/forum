@@ -6,9 +6,11 @@ interface ModalProps {
 	isOpen: boolean;
 	handlClose: (isOpen: boolean) => void;
 	children: React.ReactNode;
+	size?: 'default' | 'wide';
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, handlClose, children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, handlClose, children, size = 'default' }) => {
+	const widthClass = size === 'wide' ? 'max-w-xl md:max-w-3xl lg:max-w-4xl' : 'max-w-xl';
 	return (
 		<AnimatePresence>
 			{isOpen && (
@@ -26,7 +28,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, handlClose, children }) =>
 						animate={{ opacity: 1, scale: 1, y: 0 }}
 						exit={{ opacity: 0, scale: 0.95, y: 12 }}
 						transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-						className="bg-surface-elevated dark:bg-void-elevated w-full max-w-xl rounded-2xl overflow-hidden relative z-10 border border-border dark:border-void-border shadow-2xl shadow-ink/10 dark:shadow-black/40"
+						className={`bg-surface-elevated dark:bg-void-elevated w-full ${widthClass} rounded-2xl overflow-hidden relative z-10 border border-border dark:border-void-border shadow-2xl shadow-ink/10 dark:shadow-black/40`}
 					>
 						<button
 							onClick={() => handlClose(false)}
@@ -35,7 +37,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, handlClose, children }) =>
 							<HiX className="w-5 h-5" />
 						</button>
 
-						<div className="p-7 md:p-10 overflow-y-auto max-h-[90vh]">{children}</div>
+						<div className="p-6 md:p-8 overflow-y-auto max-h-[90vh] md:overflow-visible md:max-h-none">{children}</div>
 					</motion.div>
 				</div>
 			)}

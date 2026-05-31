@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const notificationRoutes = require('./routes/notifications');
 const newsRoutes = require('./routes/news');
+const searchRoutes = require('./routes/search');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
@@ -17,11 +18,10 @@ const fs = require('fs');
 const forms = multer();
 
 // app.use(formidable());
-app.use(express.json({ limit: '50mb' }));
-app.use(bodyParser.json());
+app.use(express.json({ limit: '100mb' }));
 app.use(
 	bodyParser.urlencoded({
-		limit: '50mb',
+		limit: '100mb',
 		extended: true,
 	}),
 );
@@ -33,6 +33,7 @@ app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/news', newsRoutes);
+app.use('/search', searchRoutes);
 
 // hello
 app.get('/', (req, res) => {

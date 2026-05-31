@@ -7,10 +7,13 @@ import { Layout } from './components/Layout';
 import { Home } from './pages/home';
 import { Post } from './pages/post';
 import { Notifications } from './pages/notifications';
+import { Search } from './pages/search';
+import { Reels } from './pages/reels';
 import { AnimatePresence, motion } from 'framer-motion';
 import { themeStore } from './store/theme';
 
 import { authStore } from './store/auth';
+import { Toast } from './components/Toast';
 
 function AppContent() {
 	const location = useLocation();
@@ -32,6 +35,8 @@ function AppContent() {
 					<Route path="/profile/:creatorId" element={<Profile />} />
 					<Route path="/post/:postId" element={<Post />} />
 					<Route path="/notifications" element={<Notifications />} />
+					<Route path="/search" element={<Search />} />
+					<Route path="/reels" element={<Reels />} />
 					<Route path="/*" element={<Navigate to="/login" />} />
 				</Routes>
 			</motion.div>
@@ -59,6 +64,7 @@ export const App = () => {
 
 	return (
 		<div className="min-h-screen bg-surface dark:bg-void text-ink dark:text-cream font-body selection:bg-signal/20 dark:selection:bg-signal/30 selection:text-ink dark:selection:text-cream transition-colors duration-500 grain">
+			<Toast />
 			<BrowserRouter>
 				<AppContent />
 			</BrowserRouter>

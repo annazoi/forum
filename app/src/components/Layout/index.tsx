@@ -2,9 +2,11 @@ import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authStore } from '../../store/auth';
 import { themeStore } from '../../store/theme';
-import { HiHome, HiSearch, HiPlus, HiBell, HiUser, HiOutlineLogout, HiMoon, HiSun } from 'react-icons/hi';
+import { HiHome, HiSearch, HiPlus, HiBell, HiUser, HiOutlineLogout, HiMoon, HiSun, HiFilm } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import { useNotificationsHook } from '../../hooks/use-notifications';
+import { useMediaQuery } from '../../hooks/use-media-query';
+import { WorldNewsProvider } from '../../providers/world-news';
 import { LiveSignals } from '../LiveSignals';
 
 interface NavItemProps {
@@ -76,6 +78,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 	const toggleTheme = themeStore((s) => s.toggle);
 
 	const { unreadCount, fetchUnreadCount } = useNotificationsHook();
+	const isLgUp = useMediaQuery('(min-width: 1024px)');
 
 	useEffect(() => {
 		if (!isLoggedIn) return;
@@ -94,6 +97,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
 	const navItems = [
 		{ to: '/home', icon: HiHome, label: 'Feed', protected: true },
+		{ to: '/reels', icon: HiFilm, label: 'Reels', protected: true },
 		{ to: '/search', icon: HiSearch, label: 'Search', protected: true },
 		{ to: '/notifications', icon: HiBell, label: 'Signals', badge: unreadCount, protected: true },
 		{ to: `/profile/${userId}`, icon: HiUser, label: 'Profile', protected: true },
@@ -102,6 +106,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 	const pageTitle =
 		pathname === '/home'
 			? 'Feed'
+			: pathname === '/reels'
+				? 'Reels'
+			: pathname === '/search'
+				? 'Search'
 			: pathname === '/notifications'
 				? 'Signals'
 				: pathname.startsWith('/profile')
@@ -111,6 +119,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 						: pathname.split('/')[1]?.charAt(0).toUpperCase() + pathname.split('/')[1]?.slice(1);
 
 	return (
+		<WorldNewsProvider>
 		<div className="min-h-screen relative z-[1]">
 			<div className="max-w-7xl mx-auto flex h-full">
 				{isLoggedIn && (
@@ -137,7 +146,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 										to={item.to}
 										icon={item.icon}
 										label={item.label}
-										isActive={pathname === item.to}
+										isActive={pathname === item.to || (item.to === '/reels' && pathname.startsWith('/reels'))}
 										badge={'badge' in item ? item.badge : undefined}
 									/>
 								);
@@ -196,11 +205,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 					{children}
 				</main>
 
-				<aside className="hidden lg:block w-72 p-5">
-					<LiveSignals />
-
-					
-				</aside>
+				{isLgUp && (
+					<aside className="w-72 p-5">
+						<LiveSignals />
+					</aside>
+				)}
 			</div>
 
 			{isLoggedIn && (
@@ -208,7 +217,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 					{navItems.map((item) => {
 						if ('protected' in item && item.protected && !isLoggedIn) return null;
 						const Icon = item.icon;
-						const isActive = pathname === item.to;
+						const isActive = pathname === item.to || (item.to === '/reels' && pathname.startsWith('/reels'));
 						const badge = 'badge' in item ? item.badge : undefined;
 						return (
 							<Link key={item.label} to={item.to} className="relative p-2">
@@ -250,5 +259,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 				</nav>
 			)}
 		</div>
+		</WorldNewsProvider>
 	);
 };

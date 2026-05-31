@@ -4,7 +4,7 @@ const Notification = require("../model/Notification");
 const cloudinary = require("../utils/cloudinary");
 
 const createPost = async (req, res) => {
-  const { description, image } = req.body;
+  const { description, image, video, type } = req.body;
   try {
     let imageUrl = "";
     if (image) {
@@ -14,9 +14,20 @@ const createPost = async (req, res) => {
       imageUrl = result.url;
     }
 
+    let videoUrl = "";
+    if (video) {
+      const result = await cloudinary.uploader.upload(video, {
+        folder: "reels",
+        resource_type: "video",
+      });
+      videoUrl = result.url;
+    }
+
     const post = await Post.create({
       description,
       image: imageUrl,
+      video: videoUrl,
+      type: type || (videoUrl ? "reel" : "post"),
       creatorId: req.userId,
       visibility: req.body.visibility || 'public',
     });
@@ -46,6 +57,18 @@ const deletePost = async (req, res) => {
   }
 };
 
+const buildVisibilityFilter = (loggedInUserId, followedUserIds) => ({
+  $or: [
+    { visibility: "public" },
+    { visibility: { $exists: false } },
+    { creatorId: loggedInUserId },
+    {
+      visibility: "private",
+      creatorId: { $in: followedUserIds },
+    },
+  ],
+});
+
 const getPosts = async (req, res) => {
   try {
     const loggedInUserId = req.userId;
@@ -58,23 +81,25 @@ const getPosts = async (req, res) => {
       }
     }
 
-    const visibilityFilter = {
-      $or: [
-        { visibility: "public" },
-        { visibility: { $exists: false } }, // Backward compatibility
-        { creatorId: loggedInUserId }, // Self
-        {
-          visibility: "private",
-          creatorId: { $in: followedUserIds },
-        },
+    const visibilityFilter = buildVisibilityFilter(
+      loggedInUserId,
+      followedUserIds
+    );
+
+    let filter = {
+      $and: [
+        visibilityFilter,
+        { $or: [{ type: { $exists: false } }, { type: "post" }] },
       ],
     };
-
-    let filter = { ...visibilityFilter };
     const creatorId = req.query.creatorId;
     if (creatorId) {
       filter = {
-        $and: [{ creatorId: creatorId }, visibilityFilter],
+        $and: [
+          { creatorId: creatorId },
+          visibilityFilter,
+          { $or: [{ type: { $exists: false } }, { type: "post" }] },
+        ],
       };
     }
 
@@ -166,7 +191,95 @@ const unlikePost = async (req, res) => {
   }
 };
 
+const uploadVideoToCloudinary = (buffer) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "reels", resource_type: "video" },
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
+  });
+
+const createReel = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Video file is required", post: null });
+    }
+
+    const videoUrl = await uploadVideoToCloudinary(req.file.buffer);
+
+    const post = await Post.create({
+      description: req.body.description || "",
+      video: videoUrl,
+      type: "reel",
+      creatorId: req.userId,
+      visibility: req.body.visibility || "public",
+    });
+
+    res.status(201).json({ message: "OK", post });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Could not upload video. Try a shorter clip or smaller file.",
+      post: null,
+    });
+  }
+};
+
+const getReels = async (req, res) => {
+  try {
+    const loggedInUserId = req.userId;
+    let followedUserIds = [];
+
+    if (loggedInUserId) {
+      const user = await User.findById(loggedInUserId);
+      if (user) {
+        followedUserIds = user.following || [];
+      }
+    }
+
+    const visibilityFilter = buildVisibilityFilter(
+      loggedInUserId,
+      followedUserIds
+    );
+
+    let filter = {
+      $and: [visibilityFilter, { type: "reel" }],
+    };
+
+    const creatorId = req.query.creatorId;
+    if (creatorId) {
+      filter = {
+        $and: [{ creatorId: creatorId }, visibilityFilter, { type: "reel" }],
+      };
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const reels = await Post.find(filter)
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("creatorId comments.creatorId", "-password");
+
+    if (!reels || reels.length === 0) {
+      return res.status(200).json({ message: "No more reels", reels: [] });
+    }
+
+    res.status(200).json({ message: "ok", reels });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", reels: null });
+  }
+};
+
 exports.createPost = createPost;
+exports.createReel = createReel;
+exports.getReels = getReels;
 exports.deletePost = deletePost;
 exports.getPosts = getPosts;
 exports.getPost = getPost;

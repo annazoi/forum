@@ -8,6 +8,7 @@ import { authStore } from '../../store/auth';
 import { commentSchema } from '../../validation-schemas/comment';
 import { PostCard } from '../../components/PostCard';
 import { Spinner } from '../../components/ui/Spinner';
+import { notify } from '../../utils/toast';
 
 interface CommentForm {
 	description: string;
@@ -73,7 +74,7 @@ export const Post: React.FC = () => {
 	}, [postId]);
 
 	const onSubmit = async (data: CommentForm) => {
-		if (!isLoggedIn) return alert('Please login first');
+		if (!isLoggedIn) return notify.info('Please login first');
 		try {
 			const res = await createComment(data, post._id);
 			if (res.message === 'ok') {
@@ -81,7 +82,7 @@ export const Post: React.FC = () => {
 				fetchPost();
 			}
 		} catch (err) {
-			alert('Could not post reply');
+			notify.error('Could not post reply');
 		}
 	};
 

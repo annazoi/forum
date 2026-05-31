@@ -10,6 +10,9 @@ import { PostCard } from '../../components/PostCard';
 import { Spinner } from '../../components/ui/Spinner';
 import { Button } from '../../components/ui/Button';
 import EmojiPicker from 'emoji-picker-react';
+import { notify } from '../../utils/toast';
+import { LiveSignals } from '../../components/LiveSignals';
+import { useMediaQuery } from '../../hooks/use-media-query';
 
 interface PostForm {
 	description: string | undefined;
@@ -30,6 +33,7 @@ export const Home: React.FC = () => {
 	const [hasMore, setHasMore] = useState(true);
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const isLgUp = useMediaQuery('(min-width: 1024px)');
 
 	const {
 		register,
@@ -144,7 +148,7 @@ export const Home: React.FC = () => {
 	};
 
 	const onSubmit = async (data: PostForm) => {
-		if (!isLoggedIn) return alert('Please login first');
+		if (!isLoggedIn) return notify.info('Please login first');
 		try {
 			const res = await createPost({
 				...data,
@@ -160,7 +164,7 @@ export const Home: React.FC = () => {
 				setHasMore(true);
 			}
 		} catch (err) {
-			alert('Could not create post');
+			notify.error('Could not create post');
 		}
 	};
 
@@ -354,6 +358,12 @@ export const Home: React.FC = () => {
 						</form>
 					</div>
 				</motion.div>
+			)}
+
+			{isLoggedIn && !isLgUp && (
+				<div className="border-b border-border-subtle dark:border-void-border bg-surface dark:bg-void">
+					<LiveSignals variant="carousel" />
+				</div>
 			)}
 
 			<div className="flex flex-col">

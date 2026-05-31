@@ -39,6 +39,17 @@ const postSchema = mongoose.Schema({
 		required: false,
 	},
 
+	video: {
+		type: String,
+		required: false,
+	},
+
+	type: {
+		type: String,
+		enum: ['post', 'reel'],
+		default: 'post',
+	},
+
 	date: {
 		type: Date,
 		default: Date.now,

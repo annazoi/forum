@@ -79,7 +79,13 @@ export const Register = () => {
 				</div>
 
 				<div className="relative flex items-center gap-3">
-					<img src="/relay.png" alt="Relay" className="h-10 w-auto max-w-[5rem] rounded-md object-contain relay-glow" />
+					<img
+						src="/relay.png"
+						alt="Relay"
+						width={80}
+						height={40}
+						className="h-10 w-auto max-w-[5rem] rounded-md object-contain relay-glow"
+					/>
 					<span className="font-display font-extrabold text-2xl text-cream tracking-tight">Relay</span>
 				</div>
 
@@ -115,7 +121,13 @@ export const Register = () => {
 					className="max-w-xl mx-auto"
 				>
 				<div className="lg:hidden flex items-center gap-2.5 mb-8">
-					<img src="/relay.png" alt="Relay" className="h-9 w-auto max-w-[4.5rem] rounded-md object-contain" />
+					<img
+						src="/relay.png"
+						alt="Relay"
+						width={72}
+						height={36}
+						className="h-9 w-auto max-w-[4.5rem] rounded-md object-contain"
+					/>
 						<span className="font-display font-extrabold text-xl text-ink dark:text-cream">Relay</span>
 					</div>
 

@@ -18,6 +18,8 @@ interface PostCardProps {
 		_id: string;
 		description: string;
 		image?: string;
+		video?: string;
+		type?: 'post' | 'reel';
 		date: string;
 		likes: string[];
 		comments: any[];
@@ -106,7 +108,18 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike }) =>
 								{post.description}
 							</p>
 
-							{post.image && (
+							{post.video && (
+								<div className="mt-3 relative overflow-hidden rounded-xl border border-border-subtle dark:border-void-border bg-ink dark:bg-void-elevated">
+									<video
+										src={post.video}
+										controls
+										playsInline
+										className="w-full h-auto max-h-[480px] object-cover"
+									/>
+								</div>
+							)}
+
+							{post.image && !post.video && (
 								<div className="mt-3 relative group/image overflow-hidden rounded-xl border border-border-subtle dark:border-void-border bg-parchment-deep/40 dark:bg-void-surface">
 									<motion.button
 										onClick={(e) => {

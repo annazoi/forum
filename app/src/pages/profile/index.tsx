@@ -16,6 +16,7 @@ import { Form } from '../../components/Form';
 import { ImagePicker } from '../../components/ui/ImagePicker';
 import { Button } from '../../components/ui/Button';
 import * as yup from 'yup';
+import { notify } from '../../utils/toast';
 
 const profileUpdateSchema = yup.object().shape({
 	name: yup.string().required('First name is required'),
@@ -90,7 +91,7 @@ export const Profile: React.FC = () => {
 	}, [creatorId, userId]);
 
 	const handleFollow = async () => {
-		if (!isLoggedIn) return alert('Please login first');
+		if (!isLoggedIn) return notify.info('Please login first');
 		if (isFollowing) {
 			await unfollowUser(creatorId!);
 			setIsFollowing(false);
@@ -149,9 +150,10 @@ export const Profile: React.FC = () => {
 			await updateUser(creatorId!, data);
 			setOpenModal(false);
 			fetchData();
-			alert('Profile updated successfully!');
+			notify.success('Profile updated successfully!');
 		} catch (err) {
 			console.error('Could not update user', err);
+			notify.error('Could not update profile');
 		}
 	};
 
@@ -301,39 +303,52 @@ export const Profile: React.FC = () => {
 				)}
 			</div>
 
-			<Modal isOpen={openModal} handlClose={setOpenModal}>
-				<div className="p-2">
-					<div className="text-center mb-8">
-						<h2 className="font-display font-bold text-3xl text-ink dark:text-cream tracking-tight leading-tight">Edit Profile</h2>
-						<p className="font-mono text-[11px] text-ink-faint dark:text-cream-faint uppercase tracking-wider mt-2">Redefine your social essence</p>
+			<Modal isOpen={openModal} handlClose={setOpenModal} size="wide">
+				<header className="text-center md:text-left mb-6 md:mb-5 md:pr-10">
+					<h2 className="font-display font-bold text-2xl md:text-[1.65rem] text-ink dark:text-cream tracking-tight leading-tight">
+						Edit Profile
+					</h2>
+					<p className="font-mono text-[10px] text-ink-faint dark:text-cream-faint uppercase tracking-wider mt-1.5">
+						Redefine your social essence
+					</p>
+				</header>
+
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_11.5rem] lg:grid-cols-[minmax(0,1fr)_12.5rem] gap-6 md:gap-7 md:items-start">
+						<div className="bg-parchment-deep/40 dark:bg-void-surface/50 p-5 md:p-6 rounded-2xl border border-border-subtle dark:border-void-border">
+							<Form errors={errors} register={register} dense />
+						</div>
+
+						<aside className="flex flex-col items-center gap-3 md:gap-4 md:border-l md:border-border-subtle dark:md:border-void-border md:pl-6 lg:pl-7 md:pt-1">
+							<h3 className="font-mono text-[10px] text-ink-faint dark:text-cream-faint uppercase tracking-wider text-center md:text-left md:self-stretch">
+								Profile Identity
+							</h3>
+							<ImagePicker
+								variant="compact"
+								value={getValues('image')}
+								onChange={handleImage}
+							/>
+							<p className="hidden md:block font-mono text-[9px] text-ink-faint/80 dark:text-cream-faint/80 uppercase tracking-wider text-center leading-relaxed">
+								JPG or PNG · click to replace
+							</p>
+						</aside>
 					</div>
 
-					<form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
-						<div className="bg-parchment-deep/40 dark:bg-void-surface/50 p-6 md:p-8 rounded-2xl border border-border-subtle dark:border-void-border space-y-4">
-							<Form errors={errors} register={register} />
-						</div>
-
-						<div className="text-center space-y-4">
-							<h3 className="font-mono text-[10px] text-ink-faint dark:text-cream-faint uppercase tracking-wider">Profile Identity</h3>
-							<ImagePicker value={getValues('image')} onChange={handleImage} />
-						</div>
-
-						<div className="flex items-center gap-3 pt-4">
-							<Button
-								variant="outline"
-								label="Discard"
-								className="flex-1 !py-3 !rounded-xl font-display font-semibold text-sm"
-								onClick={() => setOpenModal(false)}
-							/>
-							<Button
-								label="Refine Profile"
-								type="submit"
-								loading={userLoading}
-								className="flex-1 !py-3 !rounded-xl font-display font-semibold text-sm relay-glow"
-							/>
-						</div>
-					</form>
-				</div>
+					<div className="flex items-center gap-3 mt-6 md:mt-5 md:pt-5 md:border-t md:border-border-subtle dark:md:border-void-border">
+						<Button
+							variant="outline"
+							label="Discard"
+							className="flex-1 !py-2.5 !rounded-xl font-display font-semibold text-sm"
+							onClick={() => setOpenModal(false)}
+						/>
+						<Button
+							label="Refine Profile"
+							type="submit"
+							loading={userLoading}
+							className="flex-1 !py-2.5 !rounded-xl font-display font-semibold text-sm relay-glow"
+						/>
+					</div>
+				</form>
 			</Modal>
 		</div>
 	);
