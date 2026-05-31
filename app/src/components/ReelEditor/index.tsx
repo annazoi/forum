@@ -6,12 +6,24 @@ import {
 	HiPhotograph,
 	HiOutlineGlobeAlt,
 	HiOutlineLockClosed,
+	HiVideoCamera,
+	HiPencil,
 } from 'react-icons/hi';
 import { useVideoRecorder } from '../../hooks/use-video-recorder';
 import { usesCanvasPipeline } from '../../lib/video-filters';
+import {
+	TEXT_REEL_COLORS,
+	generateTextReelVideo,
+	getTextReelColor,
+	type TextReelColorId,
+} from '../../lib/text-reel';
 import { FilterStrip } from './FilterStrip';
+import { ColorStrip } from './ColorStrip';
 import { Button } from '../ui/Button';
 import { notify } from '../../utils/toast';
+
+type CreateMode = 'video' | 'text';
+type EditorStep = 'compose' | 'preview';
 
 interface ReelEditorProps {
 	onPublish: (video: Blob | File, description: string) => Promise<void>;
@@ -19,6 +31,7 @@ interface ReelEditorProps {
 	publishing?: boolean;
 	visibility: 'public' | 'private';
 	onVisibilityChange: (v: 'public' | 'private') => void;
+	initialMode?: CreateMode;
 }
 
 export const ReelEditor: React.FC<ReelEditorProps> = ({
@@ -27,11 +40,18 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 	publishing,
 	visibility,
 	onVisibilityChange,
+	initialMode = 'video',
 }) => {
 	const fileRef = useRef<HTMLInputElement>(null);
 	const previewVideoRef = useRef<HTMLVideoElement>(null);
 	const [description, setDescription] = useState('');
-	const [step, setStep] = useState<'record' | 'preview'>('record');
+	const [step, setStep] = useState<EditorStep>('compose');
+	const [createMode, setCreateMode] = useState<CreateMode>(initialMode);
+	const [textContent, setTextContent] = useState('');
+	const [colorId, setColorId] = useState<TextReelColorId>('signal');
+	const [generating, setGenerating] = useState(false);
+
+	const selectedColor = getTextReelColor(colorId);
 
 	const {
 		recording,
@@ -45,6 +65,7 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 		stopRecording,
 		flipCamera,
 		loadFile,
+		loadBlob,
 		clearPreview,
 		stopStream,
 		facingMode,
@@ -60,10 +81,10 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 	const mirrorCamera = facingMode === 'user';
 
 	useEffect(() => {
-		if (step !== 'record' || previewUrl) return;
+		if (step !== 'compose' || createMode !== 'video' || previewUrl) return;
 		startCamera();
 		return () => stopStream();
-	}, [step, previewUrl, startCamera, stopStream]);
+	}, [step, createMode, previewUrl, startCamera, stopStream]);
 
 	useEffect(() => {
 		if (previewUrl && videoBlob) setStep('preview');
@@ -86,10 +107,38 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 		return () => el.removeEventListener('loadeddata', play);
 	}, [step, previewUrl]);
 
+	const switchMode = (mode: CreateMode) => {
+		if (mode === createMode || recording) return;
+		if (mode === 'text') stopStream();
+		setCreateMode(mode);
+		if (mode === 'video' && step === 'compose') startCamera();
+	};
+
 	const handleRetake = () => {
 		clearPreview();
 		setDescription('');
-		setStep('record');
+		setStep('compose');
+		if (createMode === 'video') startCamera();
+	};
+
+	const handleGenerateTextReel = async () => {
+		if (!textContent.trim()) {
+			notify.error('Add some text first');
+			return;
+		}
+		setGenerating(true);
+		try {
+			const blob = await generateTextReelVideo({
+				backgroundColor: selectedColor.color,
+				textColor: selectedColor.textColor,
+				text: textContent,
+			});
+			loadBlob(blob);
+		} catch {
+			notify.error('Could not create text reel');
+		} finally {
+			setGenerating(false);
+		}
 	};
 
 	const handlePublish = async () => {
@@ -103,9 +152,12 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 
 	const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
+	const textFontSize =
+		textContent.length <= 24 ? 'text-[2rem]' : textContent.length <= 60 ? 'text-[1.65rem]' : textContent.length <= 120 ? 'text-[1.35rem]' : 'text-[1.1rem]';
+
 	return (
-		<div className="flex flex-col h-[calc(100dvh-52px)] sm:h-[calc(100vh-52px)] bg-void-surface dark:bg-void overflow-hidden">
-			<div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 pt-[max(1rem,env(safe-area-inset-top))]">
+		<div className="relative flex flex-col h-[calc(100dvh-52px)] sm:h-[calc(100vh-52px)] bg-void-surface dark:bg-void overflow-hidden">
+			<div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 pt-[max(1rem,env(safe-area-inset-top))]">
 				<button
 					onClick={onCancel}
 					className="p-2.5 rounded-full bg-black/40 backdrop-blur-md text-white active:scale-95 transition-transform"
@@ -114,7 +166,36 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 					<HiX className="w-6 h-6" />
 				</button>
 
-				{step === 'record' && !recording && (
+				{step === 'compose' && (
+					<div className="flex items-center gap-1 p-1 rounded-full bg-black/40 backdrop-blur-md">
+						<button
+							type="button"
+							onClick={() => switchMode('video')}
+							className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all ${
+								createMode === 'video'
+									? 'bg-white text-ink shadow-sm'
+									: 'text-white/70 hover:text-white'
+							}`}
+						>
+							<HiVideoCamera className="w-4 h-4" />
+							Record
+						</button>
+						<button
+							type="button"
+							onClick={() => switchMode('text')}
+							className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all ${
+								createMode === 'text'
+									? 'bg-white text-ink shadow-sm'
+									: 'text-white/70 hover:text-white'
+							}`}
+						>
+							<HiPencil className="w-4 h-4" />
+							Text
+						</button>
+					</div>
+				)}
+
+				{step === 'compose' && createMode === 'video' && !recording ? (
 					<button
 						onClick={flipCamera}
 						className="p-2.5 rounded-full bg-black/40 backdrop-blur-md text-white active:scale-95 transition-transform"
@@ -122,26 +203,47 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 					>
 						<HiRefresh className="w-6 h-6" />
 					</button>
+				) : (
+					<div className="w-11" />
 				)}
 			</div>
 
 			<div className="flex-1 relative overflow-hidden">
-				<video ref={sourceVideoRef} autoPlay muted playsInline className="hidden" />
+				{createMode === 'video' && (
+					<video ref={sourceVideoRef} autoPlay muted playsInline className="hidden" />
+				)}
 
-				{step === 'record' ? (
-					usingFilter ? (
-						<canvas
-							ref={canvasRef}
-							className={`absolute inset-0 w-full h-full object-cover ${mirrorCamera ? 'scale-x-[-1]' : ''}`}
-						/>
+				{step === 'compose' ? (
+					createMode === 'video' ? (
+						usingFilter ? (
+							<canvas
+								ref={canvasRef}
+								className={`absolute inset-0 w-full h-full object-cover ${mirrorCamera ? 'scale-x-[-1]' : ''}`}
+							/>
+						) : (
+							<video
+								ref={videoRef}
+								autoPlay
+								muted
+								playsInline
+								className={`absolute inset-0 w-full h-full object-cover ${mirrorCamera ? 'scale-x-[-1]' : ''}`}
+							/>
+						)
 					) : (
-						<video
-							ref={videoRef}
-							autoPlay
-							muted
-							playsInline
-							className={`absolute inset-0 w-full h-full object-cover ${mirrorCamera ? 'scale-x-[-1]' : ''}`}
-						/>
+						<div
+							className="absolute inset-0 grid content-center justify-items-center px-8 transition-colors duration-300"
+							style={{ backgroundColor: selectedColor.color }}
+						>
+							<textarea
+								value={textContent}
+								onChange={(e) => setTextContent(e.target.value)}
+								placeholder="Say something..."
+								maxLength={280}
+								rows={6}
+								style={{ color: selectedColor.textColor }}
+								className={`w-full max-w-md bg-transparent border-none outline-none resize-none text-center font-display font-bold leading-snug placeholder:opacity-40 content-center ${textFontSize}`}
+							/>
+						</div>
 					)
 				) : (
 					previewUrl && (
@@ -156,7 +258,9 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 					)
 				)}
 
-				<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+				{createMode === 'video' && (
+					<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+				)}
 
 				{error && (
 					<div className="absolute top-20 left-4 right-4 bg-relay/90 text-white text-sm font-body rounded-xl px-4 py-3 text-center">
@@ -164,7 +268,7 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 					</div>
 				)}
 
-				{step === 'record' && (
+				{step === 'compose' && createMode === 'video' && (
 					<div className="absolute top-20 left-0 right-0 flex justify-center">
 						{recording && (
 							<motion.div
@@ -227,11 +331,15 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 				)}
 			</div>
 
-			{step === 'record' && !recording && (
+			{step === 'compose' && createMode === 'video' && !recording && (
 				<FilterStrip filters={filters} filterId={filterId} onSelect={setFilterId} />
 			)}
 
-			{step === 'record' && (
+			{step === 'compose' && createMode === 'text' && (
+				<ColorStrip colors={TEXT_REEL_COLORS} colorId={colorId} onSelect={setColorId} />
+			)}
+
+			{step === 'compose' && createMode === 'video' && (
 				<div className="shrink-0 flex items-center justify-center gap-10 pt-2 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] bg-black/60 backdrop-blur-sm">
 					<input
 						ref={fileRef}
@@ -277,6 +385,35 @@ export const ReelEditor: React.FC<ReelEditorProps> = ({
 					<div className="w-[52px]" />
 				</div>
 			)}
+
+			{step === 'compose' && createMode === 'text' && (
+				<div className="shrink-0 flex items-center justify-center py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] bg-black/60 backdrop-blur-sm">
+					<button
+						type="button"
+						onClick={handleGenerateTextReel}
+						disabled={generating || !textContent.trim()}
+						className="flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-signal text-white font-display font-semibold text-sm signal-glow active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
+					>
+						{generating ? (
+							<svg
+								className="animate-spin h-4 w-4"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+								<path
+									className="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4m2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								/>
+							</svg>
+						) : null}
+						{generating ? 'Creating…' : 'Create reel'}
+					</button>
+				</div>
+			)}
+
 		</div>
 	);
 };

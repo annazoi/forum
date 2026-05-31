@@ -219,6 +219,18 @@ export function useVideoRecorder() {
 		await startCamera(next);
 	}, [facingMode, stopStream, startCamera]);
 
+	const loadBlob = useCallback(
+		(blob: Blob) => {
+			stopRecording();
+			stopStream();
+			clearPreview();
+			setError(null);
+			setVideoBlob(blob);
+			setPreviewUrl(URL.createObjectURL(blob));
+		},
+		[stopRecording, stopStream, clearPreview],
+	);
+
 	const loadFile = useCallback(
 		(file: File) => {
 			if (!isVideoFile(file)) {
@@ -229,14 +241,9 @@ export function useVideoRecorder() {
 				setError('Video must be under 100MB');
 				return;
 			}
-			stopRecording();
-			stopStream();
-			clearPreview();
-			setError(null);
-			setVideoBlob(file);
-			setPreviewUrl(URL.createObjectURL(file));
+			loadBlob(file);
 		},
-		[stopRecording, stopStream, clearPreview],
+		[loadBlob],
 	);
 
 	useEffect(() => {
@@ -272,6 +279,7 @@ export function useVideoRecorder() {
 		stopRecording,
 		flipCamera,
 		loadFile,
+		loadBlob,
 		clearPreview,
 		stopStream,
 	};

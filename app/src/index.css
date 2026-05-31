@@ -270,3 +270,9 @@
 .reel-filter-rail {
 	overflow: hidden;
 }
+
+.text-reel-promo-mesh {
+	background:
+		radial-gradient(ellipse 80% 60% at 15% 50%, color-mix(in srgb, var(--color-signal) 14%, transparent), transparent),
+		radial-gradient(ellipse 60% 50% at 85% 20%, color-mix(in srgb, var(--color-relay) 10%, transparent), transparent);
+}

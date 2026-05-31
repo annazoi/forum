@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiFilm, HiPlus } from 'react-icons/hi';
 import { useReelsHook } from '../../hooks/use-reels';
@@ -10,13 +11,17 @@ import { Spinner } from '../../components/ui/Spinner';
 import { notify } from '../../utils/toast';
 
 type ReelsView = 'browse' | 'create';
+type ReelCreateMode = 'video' | 'text';
 
 export const Reels: React.FC = () => {
+	const [searchParams, setSearchParams] = useSearchParams();
+	const openTextEditor = searchParams.get('create') === 'text';
 	const userId = authStore((state) => state.userId);
 	const { getReels, createReel, loading } = useReelsHook();
 	const { likePost, unlikePost } = usePostHook();
 
-	const [view, setView] = useState<ReelsView>('browse');
+	const [view, setView] = useState<ReelsView>(openTextEditor ? 'create' : 'browse');
+	const [editorMode, setEditorMode] = useState<ReelCreateMode>(openTextEditor ? 'text' : 'video');
 	const [reels, setReels] = useState<any[]>([]);
 	const [hasMore, setHasMore] = useState(true);
 	const [visibility, setVisibility] = useState<'public' | 'private'>('public');
@@ -42,6 +47,12 @@ export const Reels: React.FC = () => {
 		},
 		[getReels],
 	);
+
+	useEffect(() => {
+		if (openTextEditor) {
+			setSearchParams({}, { replace: true });
+		}
+	}, [openTextEditor, setSearchParams]);
 
 	useEffect(() => {
 		if (view === 'browse') {
@@ -118,10 +129,14 @@ export const Reels: React.FC = () => {
 		return (
 			<ReelEditor
 				onPublish={handlePublish}
-				onCancel={() => setView('browse')}
+				onCancel={() => {
+					setEditorMode('video');
+					setView('browse');
+				}}
 				publishing={loading}
 				visibility={visibility}
 				onVisibilityChange={setVisibility}
+				initialMode={editorMode}
 			/>
 		);
 	}
@@ -131,7 +146,10 @@ export const Reels: React.FC = () => {
 			<div className="shrink-0 flex items-center justify-end px-4 py-2.5 border-b border-border-subtle dark:border-void-border bg-surface/90 dark:bg-void/90 backdrop-blur-sm">
 				<motion.button
 					whileTap={{ scale: 0.96 }}
-					onClick={() => setView('create')}
+					onClick={() => {
+						setEditorMode('video');
+						setView('create');
+					}}
 					className="flex items-center gap-1.5 bg-relay text-white rounded-full py-2 px-4 font-display font-semibold text-sm relay-glow"
 				>
 					<HiPlus className="w-4 h-4" />

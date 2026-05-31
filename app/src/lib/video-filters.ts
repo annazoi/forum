@@ -6,6 +6,7 @@ import {
 	gradientMap,
 	vhs,
 	type Effect,
+	type UniformParams,
 } from '@vysmo/effects';
 
 export type VideoFilterId =
@@ -28,7 +29,7 @@ export interface VideoFilterPreset {
 	swatch: string;
 	kind: VideoFilterKind;
 	effect?: Effect | null;
-	params?: Record<string, number | readonly number[]>;
+	params?: Partial<UniformParams>;
 }
 
 export const VIDEO_FILTERS: VideoFilterPreset[] = [
@@ -70,9 +71,9 @@ export const VIDEO_FILTERS: VideoFilterPreset[] = [
 		effect: gradientMap,
 		params: {
 			intensity: 0.65,
-			shadow: [0.08, 0.05, 0.02],
-			midtone: [0.85, 0.45, 0.12],
-			highlight: [1, 0.92, 0.65],
+			shadow: [0.08, 0.05, 0.02] as const,
+			midtone: [0.85, 0.45, 0.12] as const,
+			highlight: [1, 0.92, 0.65] as const,
 		},
 	},
 	{
@@ -97,7 +98,7 @@ export const VIDEO_FILTERS: VideoFilterPreset[] = [
 		swatch: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
 		kind: 'effect',
 		effect: glow,
-		params: { intensity: 0.85, threshold: 0.35, radius: 40, tint: [1, 0.85, 0.95] },
+		params: { intensity: 0.85, threshold: 0.35, radius: 40, tint: [1, 0.85, 0.95] as const },
 	},
 	{
 		id: 'sunset',
@@ -107,8 +108,8 @@ export const VIDEO_FILTERS: VideoFilterPreset[] = [
 		effect: duotone,
 		params: {
 			intensity: 0.7,
-			shadow: [0.35, 0.08, 0.25],
-			highlight: [1, 0.75, 0.35],
+			shadow: [0.35, 0.08, 0.25] as const,
+			highlight: [1, 0.75, 0.35] as const,
 		},
 	},
 	{

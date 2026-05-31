@@ -12,6 +12,7 @@ import { Button } from '../../components/ui/Button';
 import EmojiPicker from 'emoji-picker-react';
 import { notify } from '../../utils/toast';
 import { LiveSignals } from '../../components/LiveSignals';
+import { TextReelPromo } from '../../components/TextReelPromo';
 import { useMediaQuery } from '../../hooks/use-media-query';
 
 interface PostForm {
@@ -367,6 +368,8 @@ export const Home: React.FC = () => {
 					</div>
 				</motion.div>
 			)}
+
+			{isLoggedIn && <TextReelPromo />}
 
 			{isLoggedIn && !isLgUp && (
 				<div className="border-b border-border-subtle dark:border-void-border bg-surface dark:bg-void">
