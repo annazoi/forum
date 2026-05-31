@@ -1,6 +1,6 @@
 #root {
-  --primary-color: rgba(134, 112, 144, 0.4);
-  --link-color: rgb(43, 80, 70);
+  --primary-color: rgba(0, 95, 115, 0.4);
+  --link-color: rgb(0, 95, 115);
   --imagePicker-color: black;
 }
 
@@ -10,8 +10,7 @@ body {
   margin: 0;
   width: 100vw;
   height: 100vh;
-  /* background-image: url(./assets/logo.jpg); */
-  background-color: rgb(202, 193, 204);
+  background-color: #f2f7f8;
 }
 
 .main-container {

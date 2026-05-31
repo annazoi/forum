@@ -9,6 +9,8 @@ import { authStore } from '../../store/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ImagePicker } from '../../components/ui/ImagePicker';
+import { themeStore } from '../../store/theme';
+import { HiMoon, HiSun } from 'react-icons/hi';
 
 interface RegisterFormData {
 	name: string;
@@ -25,6 +27,8 @@ export const Register = () => {
 	const logIn = authStore((store) => store.logIn);
 	const { registerUser, loading, error, data } = useAuthHook();
 	const navigate = useNavigate();
+	const isDark = themeStore((s) => s.isDark);
+	const toggleTheme = themeStore((s) => s.toggle);
 
 	const {
 		register,
@@ -67,77 +71,124 @@ export const Register = () => {
 	};
 
 	return (
-		<div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				className="max-w-2xl w-full space-y-8 bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-slate-200 dark:border-zinc-700 relative overflow-hidden"
-			>
-				<div className="absolute top-0 left-0 w-full h-2 bg-indigo-600"></div>
-
-				<div className="text-center">
-					<h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Create Account</h2>
-					<p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-medium italic">Join our community of innovators</p>
+		<div className="min-h-screen flex relative z-[1]">
+			<div className="hidden lg:flex lg:w-[38%] bg-ink dark:bg-void-elevated relative overflow-hidden flex-col justify-between p-12 sticky top-0 h-screen">
+				<div className="absolute inset-0 opacity-20">
+					<div className="absolute top-1/3 -right-10 w-72 h-72 bg-signal rounded-full blur-[100px]" />
+					<div className="absolute bottom-1/3 -left-10 w-56 h-56 bg-relay rounded-full blur-[80px]" />
 				</div>
 
-				<form className="mt-8 space-y-10" onSubmit={handleSubmit(onSubmit)}>
-					{/* Personal Section */}
-					<div className="space-y-6">
-						<h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.3em] ml-2">Personal Identity</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Input name="name" placeholder="First Name" label="First Name" register={register} error={errors.name?.message} />
-							<Input name="surname" placeholder="Last Name" label="Last Name" register={register} error={errors.surname?.message} />
-						</div>
-						<Input name="username" placeholder="creative_mind" label="Username" register={register} error={errors.username?.message} />
-						<Input name="email" type="email" placeholder="name@example.com" label="Email Address" register={register} error={errors.email?.message} />
-						<div className="flex flex-col gap-1.5 w-full">
-							<label className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest ml-4 mb-1 block">Bio</label>
-							<textarea
-								{...register('bio')}
-								placeholder="Tell us about yourself..."
-								className="w-full px-6 py-4 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-3xl text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-4 focus:ring-indigo-50 dark:focus:ring-indigo-950 focus:border-indigo-400 transition-all duration-300 min-h-[100px] resize-none"
-							/>
-						</div>
-					</div>
+				<div className="relative flex items-center gap-3">
+					<img src="/relay.png" alt="Relay" className="h-10 w-auto max-w-[5rem] rounded-md object-contain relay-glow" />
+					<span className="font-display font-extrabold text-2xl text-cream tracking-tight">Relay</span>
+				</div>
 
-					{/* Security Section */}
-					<div className="space-y-6">
-						<h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.3em] ml-2">Security</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Input name="password" type="password" label="Password" placeholder="••••••••" register={register} error={errors.password?.message} />
-							<Input name="confirmPassword" type="password" label="Confirm" placeholder="••••••••" register={register} error={errors.confirmPassword?.message} />
-						</div>
-					</div>
+				<div className="relative space-y-4">
+					<h1 className="font-display font-extrabold text-3xl text-cream leading-tight tracking-tight">
+						Join the club
+					</h1>
+					<p className="font-body text-cream/60 leading-relaxed max-w-xs">
+						Share stories, follow voices you trust, and relay what matters.
+					</p>
+				</div>
 
-					{/* Avatar Section */}
-					<div className="space-y-6 flex flex-col items-center">
-						<h3 className="text-[10px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-[0.3em]">Your Photo</h3>
-						<ImagePicker value={watch('image')} onChange={handleImage} />
-					</div>
+				<p className="relative font-mono text-[11px] text-cream/30 uppercase tracking-widest">
+					Your signal starts here
+				</p>
+			</div>
 
-					{error && (
-						<motion.div
-							initial={{ opacity: 0, scale: 0.95 }}
-							animate={{ opacity: 1, scale: 1 }}
-							className="p-4 bg-red-50 dark:bg-red-950/50 rounded-2xl border border-red-100 dark:border-red-900/50"
-						>
-							<p className="text-xs text-red-600 dark:text-red-400 font-bold">{error}</p>
-						</motion.div>
+			<div className="flex-1 py-10 px-6 sm:px-10 relative">
+				<button
+					onClick={toggleTheme}
+					className="absolute top-5 right-5 p-2.5 rounded-lg hover:bg-parchment-deep/60 dark:hover:bg-void-surface transition-colors"
+				>
+					{isDark ? (
+						<HiSun className="w-5 h-5 text-signal" />
+					) : (
+						<HiMoon className="w-5 h-5 text-ink-muted" />
 					)}
+				</button>
 
-					<div className="space-y-6">
-						<Button className="w-full !py-4 !text-base uppercase tracking-widest" type="submit" loading={loading} label="Complete Registration" />
-						<div className="text-center">
-							<p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-								Already have an account?{' '}
-								<Link to="/login" className="text-indigo-600 dark:text-indigo-400 font-black hover:text-indigo-500 transition-all">
-									Sign In
-								</Link>
-							</p>
-						</div>
+				<motion.div
+					initial={{ opacity: 0, y: 16 }}
+					animate={{ opacity: 1, y: 0 }}
+					className="max-w-xl mx-auto"
+				>
+				<div className="lg:hidden flex items-center gap-2.5 mb-8">
+					<img src="/relay.png" alt="Relay" className="h-9 w-auto max-w-[4.5rem] rounded-md object-contain" />
+						<span className="font-display font-extrabold text-xl text-ink dark:text-cream">Relay</span>
 					</div>
-				</form>
-			</motion.div>
+
+					<div className="mb-8">
+						<h2 className="font-display font-bold text-2xl text-ink dark:text-cream tracking-tight">
+							Create your account
+						</h2>
+						<p className="mt-1.5 font-body text-ink-muted dark:text-cream-muted text-[15px]">
+							A few details to get you started
+						</p>
+					</div>
+
+					<form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+						<div className="space-y-4">
+							<p className="font-mono text-[10px] text-ink-faint dark:text-cream-faint uppercase tracking-widest">
+								Identity
+							</p>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<Input name="name" placeholder="First name" label="First name" register={register} error={errors.name?.message} />
+								<Input name="surname" placeholder="Last name" label="Last name" register={register} error={errors.surname?.message} />
+							</div>
+							<Input name="username" placeholder="your_handle" label="Username" register={register} error={errors.username?.message} />
+							<Input name="email" type="email" placeholder="name@example.com" label="Email" register={register} error={errors.email?.message} />
+							<div className="space-y-1.5">
+								<label className="font-mono text-[10px] text-ink-faint dark:text-cream-faint uppercase tracking-widest ml-1 block">
+									Bio
+								</label>
+								<textarea
+									{...register('bio')}
+									placeholder="A line about yourself..."
+									className="w-full px-4 py-3 bg-surface-elevated dark:bg-void-surface border border-border dark:border-void-border rounded-xl text-ink dark:text-cream font-body placeholder:text-ink-faint/60 dark:placeholder:text-cream-faint/60 focus:outline-none focus:ring-2 focus:ring-relay/20 focus:border-relay/50 transition-all min-h-[80px] resize-none"
+								/>
+							</div>
+						</div>
+
+						<div className="space-y-4">
+							<p className="font-mono text-[10px] text-ink-faint dark:text-cream-faint uppercase tracking-widest">
+								Security
+							</p>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<Input name="password" type="password" label="Password" placeholder="••••••••" register={register} error={errors.password?.message} />
+								<Input name="confirmPassword" type="password" label="Confirm" placeholder="••••••••" register={register} error={errors.confirmPassword?.message} />
+							</div>
+						</div>
+
+						<div className="space-y-4 flex flex-col items-center">
+							<p className="font-mono text-[10px] text-ink-faint dark:text-cream-faint uppercase tracking-widest">
+								Photo
+							</p>
+							<ImagePicker value={watch('image')} onChange={handleImage} />
+						</div>
+
+						{error && (
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								className="p-3.5 bg-relay/8 border border-relay/20 rounded-xl"
+							>
+								<p className="font-mono text-[11px] text-relay">{error}</p>
+							</motion.div>
+						)}
+
+						<Button className="w-full !py-3" type="submit" loading={loading} label="Create account" />
+
+						<p className="text-center font-body text-sm text-ink-muted dark:text-cream-muted">
+							Already a member?{' '}
+							<Link to="/login" className="font-display font-semibold text-relay hover:text-relay-hover transition-colors">
+								Sign in
+							</Link>
+						</p>
+					</form>
+				</motion.div>
+			</div>
 		</div>
 	);
 };

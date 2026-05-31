@@ -1,12 +1,12 @@
 .text-area {
   text-align: center;
   font-size: 17px;
-  color: rgb(255, 255, 255);
+  color: #001219;
   border-radius: 7px;
   letter-spacing: 2px;
   min-height: 100px;
-  background-color: rgba(193, 196, 194, 0.5);
-  border: 2px solid rgba(193, 196, 194, 0.5);
+  background-color: rgba(0, 95, 115, 0.08);
+  border: 2px solid rgba(0, 95, 115, 0.2);
   resize: none;
   box-sizing: border-box;
 }

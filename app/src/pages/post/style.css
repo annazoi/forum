@@ -20,7 +20,7 @@
   padding: 4px;
   font-weight: bolder;
   letter-spacing: 2px;
-  background-color: #5a3a7460;
+  background-color: #005f7360;
 }
 
 .create-comment {
@@ -33,7 +33,7 @@
   line-height: 30px;
   padding: 25px;
   border-radius: 15px;
-  background-color: rgba(134, 112, 144, 0.4);
+  background-color: rgba(0, 95, 115, 0.4);
 }
 
 @media screen and (max-width: 768px) {

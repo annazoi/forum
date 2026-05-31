@@ -7,9 +7,7 @@ import {
 	HiOutlineChatAlt,
 	HiOutlineShare,
 	HiOutlineDotsHorizontal,
-	HiArrowsExpand,
 	HiOutlineGlobeAlt,
-	HiOutlineLockClosed,
 } from 'react-icons/hi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authStore } from '../../store/auth';
@@ -47,74 +45,69 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike }) =>
 
 	return (
 		<>
-			<motion.div
+			<motion.article
 				layout
-				initial={{ opacity: 0, y: 20 }}
+				initial={{ opacity: 0, y: 12 }}
 				animate={{ opacity: 1, y: 0 }}
-				exit={{ opacity: 0, scale: 0.95 }}
-				className="p-4 border-b border-slate-100 dark:border-zinc-800 transition-colors group cursor-pointer relative hover:bg-slate-50/50 dark:hover:bg-zinc-900/50"
+				exit={{ opacity: 0, scale: 0.98 }}
+				className="px-5 py-4 border-b border-border-subtle dark:border-void-border transition-colors group relative hover:bg-parchment-deep/30 dark:hover:bg-void-surface/50"
 			>
-				<div className="flex gap-3">
-					{/* Avatar */}
+				<div className="flex gap-3.5">
 					<Link
 						to={`/profile/${post.creatorId?._id}`}
-						className="shrink-0 pt-1"
+						className="shrink-0 pt-0.5"
 						onClick={(e) => e.stopPropagation()}
 					>
 						<motion.div
-							whileHover={{ scale: 1.1, rotate: 5 }}
-							className="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden border border-slate-200 dark:border-zinc-700"
+							whileHover={{ scale: 1.05 }}
+							className="w-11 h-11 rounded-xl bg-parchment-deep dark:bg-void-surface overflow-hidden border border-border-subtle dark:border-void-border"
 						>
 							{post.creatorId?.image ? (
 								<img src={post.creatorId.image} alt={username} className="w-full h-full object-cover" />
 							) : (
-								<div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">
+								<div className="w-full h-full flex items-center justify-center font-display font-bold text-ink-faint dark:text-cream-faint text-sm">
 									{username[0].toUpperCase()}
 								</div>
 							)}
 						</motion.div>
 					</Link>
 
-					{/* Content */}
 					<div className="flex-1 min-w-0">
-						<div className="flex items-center justify-between gap-1">
-							<div className="flex items-center gap-1 group/author min-w-0">
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex items-center gap-1.5 min-w-0 flex-wrap">
 								<Link
 									to={`/profile/${post.creatorId?._id}`}
-									className="font-bold text-slate-900 dark:text-white hover:underline truncate"
+									className="font-display font-semibold text-[14px] text-ink dark:text-cream hover:text-relay transition-colors truncate"
 									onClick={(e) => e.stopPropagation()}
 								>
 									{name} {surname}
 								</Link>
-								<span className="text-slate-500 dark:text-slate-400 truncate text-sm">@{username}</span>
-								<span className="text-slate-400 dark:text-slate-500 text-sm whitespace-nowrap">
+								<span className="font-mono text-[12px] text-ink-faint dark:text-cream-faint truncate">
+									@{username}
+								</span>
+								<span className="text-ink-faint dark:text-cream-faint text-xs">·</span>
+								<span className="font-mono text-[11px] text-ink-faint dark:text-cream-faint whitespace-nowrap">
 									{post.date ? formatDistanceToNow(new Date(post.date)) : ''}
 								</span>
 								{post.visibility === 'public' && (
-									<>
-										<span className="text-slate-400 dark:text-slate-600">·</span>
-										<HiOutlineGlobeAlt
-											className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 opacity-60"
-											title="Visible to everyone"
-										/>
-									</>
+									<HiOutlineGlobeAlt className="w-3 h-3 text-ink-faint dark:text-cream-faint opacity-50" />
 								)}
 							</div>
 							<button
-								className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-full transition-all sm:opacity-0 group-hover:opacity-100"
+								className="p-1.5 text-ink-faint dark:text-cream-faint hover:text-relay hover:bg-relay/8 rounded-lg transition-all opacity-0 group-hover:opacity-100"
 								onClick={(e) => e.stopPropagation()}
 							>
-								<HiOutlineDotsHorizontal className="w-5 h-5" />
+								<HiOutlineDotsHorizontal className="w-4 h-4" />
 							</button>
 						</div>
 
-						<Link to={`/post/${post._id}`} className="block mt-1">
-							<p className="text-slate-800 dark:text-slate-200 text-[15px] leading-normal whitespace-pre-wrap break-words">
+						<Link to={`/post/${post._id}`} className="block mt-1.5">
+							<p className="font-body text-[15px] leading-relaxed text-ink/90 dark:text-cream/90 whitespace-pre-wrap break-words">
 								{post.description}
 							</p>
 
 							{post.image && (
-								<div className="mt-3 relative group/image overflow-hidden rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900">
+								<div className="mt-3 relative group/image overflow-hidden rounded-xl border border-border-subtle dark:border-void-border bg-parchment-deep/40 dark:bg-void-surface">
 									<motion.button
 										onClick={(e) => {
 											e.preventDefault();
@@ -125,24 +118,21 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike }) =>
 										<img
 											src={post.image}
 											alt="Post"
-											className="w-full h-auto max-h-[512px] object-cover cursor-pointer"
+											className="w-full h-auto max-h-[480px] object-cover cursor-pointer transition-transform duration-500 group-hover/image:scale-[1.02]"
 										/>
 									</motion.button>
 								</div>
 							)}
 						</Link>
 
-						{/* Actions */}
-						<div className="flex items-center justify-between mt-3 max-w-md -ml-2">
+						<div className="flex items-center gap-1 mt-3 -ml-1.5">
 							<Link
 								to={`/post/${post._id}`}
-								className="flex items-center gap-2 group/action p-2 rounded-full hover:bg-sky-50 dark:hover:bg-sky-950 transition-colors"
+								className="flex items-center gap-1.5 group/action px-2.5 py-1.5 rounded-lg hover:bg-parchment-deep dark:hover:bg-void-surface transition-colors"
 								onClick={(e) => e.stopPropagation()}
 							>
-								<div className="p-1 rounded-full text-slate-500 dark:text-slate-400 group-hover/action:text-sky-500 transition-colors">
-									<HiOutlineChatAlt className="w-5 h-5" />
-								</div>
-								<span className="text-sm text-slate-500 dark:text-slate-400 group-hover/action:text-sky-500">
+								<HiOutlineChatAlt className="w-[18px] h-[18px] text-ink-faint dark:text-cream-faint group-hover/action:text-relay transition-colors" />
+								<span className="font-mono text-[12px] text-ink-faint dark:text-cream-faint group-hover/action:text-relay transition-colors">
 									{post.comments?.length || 0}
 								</span>
 							</Link>
@@ -153,29 +143,22 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike }) =>
 									e.stopPropagation();
 									isLiked ? onUnlike(post._id) : onLike(post._id);
 								}}
-								className="flex items-center gap-2 group/action p-2 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors"
+								className="flex items-center gap-1.5 group/action px-2.5 py-1.5 rounded-lg hover:bg-relay/8 transition-colors"
 							>
-								<motion.div
-									whileTap={{ scale: 1.4 }}
-									className={`p-1 rounded-full transition-colors ${
-										isLiked
-											? 'text-rose-500'
-											: 'text-slate-500 dark:text-slate-400 group-hover/action:text-rose-500'
-									}`}
-								>
-									{isLiked ? <HiHeart className="w-5 h-5" /> : <HiOutlineHeart className="w-5 h-5" />}
+								<motion.div whileTap={{ scale: 1.3 }}>
+									{isLiked ? (
+										<HiHeart className="w-[18px] h-[18px] text-relay" />
+									) : (
+										<HiOutlineHeart className="w-[18px] h-[18px] text-ink-faint dark:text-cream-faint group-hover/action:text-relay transition-colors" />
+									)}
 								</motion.div>
 								<AnimatePresence mode="wait">
 									<motion.span
 										key={post.likes.length}
-										initial={{ y: -10, opacity: 0 }}
+										initial={{ y: -6, opacity: 0 }}
 										animate={{ y: 0, opacity: 1 }}
-										exit={{ y: 10, opacity: 0 }}
-										className={`text-sm ${
-											isLiked
-												? 'text-rose-500'
-												: 'text-slate-500 dark:text-slate-400 group-hover/action:text-rose-500'
-										}`}
+										exit={{ y: 6, opacity: 0 }}
+										className={`font-mono text-[12px] ${isLiked ? 'text-relay' : 'text-ink-faint dark:text-cream-faint group-hover/action:text-relay'} transition-colors`}
 									>
 										{post.likes.length || 0}
 									</motion.span>
@@ -183,19 +166,16 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onUnlike }) =>
 							</button>
 
 							<button
-								className="flex items-center gap-2 group/action p-2 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-colors"
+								className="flex items-center gap-1.5 group/action px-2.5 py-1.5 rounded-lg hover:bg-parchment-deep dark:hover:bg-void-surface transition-colors"
 								onClick={(e) => e.stopPropagation()}
 							>
-								<div className="p-1 rounded-full text-slate-500 dark:text-slate-400 group-hover/action:text-emerald-500 transition-colors">
-									<HiOutlineShare className="w-5 h-5" />
-								</div>
+								<HiOutlineShare className="w-[18px] h-[18px] text-ink-faint dark:text-cream-faint group-hover/action:text-signal transition-colors" />
 							</button>
 						</div>
 					</div>
 				</div>
-			</motion.div>
+			</motion.article>
 
-			{/* Lightbox Modal */}
 			<Lightbox
 				isOpen={isLightboxOpen}
 				onClose={() => setIsLightboxOpen(false)}

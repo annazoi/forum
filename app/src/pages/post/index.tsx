@@ -16,6 +16,7 @@ interface CommentForm {
 export const Post: React.FC = () => {
 	const isLoggedIn = authStore((state) => state.isLoggedIn);
 	const userId = authStore((state) => state.userId);
+	const userImage = authStore((state) => state.image);
 	const { getPost, createComment, likePost, unlikePost, loading, error } = usePostHook();
 	const [post, setPost] = useState<any>(null);
 	const { postId } = useParams<{ postId: string }>();
@@ -85,42 +86,45 @@ export const Post: React.FC = () => {
 	};
 
 	if (loading && !post) return <div className="p-10 flex justify-center"><Spinner loading={loading} /></div>;
-	if (error) return <div className="p-10 text-center font-bold text-red-500">{error}</div>;
+	if (error) return <div className="p-10 text-center font-display font-semibold text-relay">{error}</div>;
 	if (!post) return null;
 
 	return (
-		<div className="divide-y divide-slate-100 dark:divide-zinc-800 bg-white dark:bg-zinc-950 min-h-screen transition-colors">
-			<div className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md px-4 h-14 flex items-center gap-8 border-b border-slate-100 dark:border-zinc-800">
-				<button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors text-slate-700 dark:text-slate-300">
+		<div className="divide-y divide-border-subtle dark:divide-void-border bg-surface dark:bg-void min-h-screen transition-colors">
+			<div className="sticky top-0 z-30 bg-surface/85 dark:bg-void/85 backdrop-blur-xl px-4 h-[52px] flex items-center gap-6 border-b border-border-subtle dark:border-void-border">
+				<button onClick={() => navigate(-1)} className="p-2 hover:bg-parchment-deep/60 dark:hover:bg-void-surface rounded-lg transition-colors text-ink-muted dark:text-cream-muted">
 					<HiArrowLeft className="w-5 h-5" />
 				</button>
-				<h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Post</h1>
+				<h1 className="font-display font-bold text-[17px] tracking-tight text-ink dark:text-cream">Thread</h1>
 			</div>
 
 			<PostCard post={post} onLike={handleLike} onUnlike={handleUnlike} />
 
-			{/* Reply Section */}
 			{isLoggedIn && (
-				<div className="p-4 flex gap-3 bg-white dark:bg-zinc-950">
-					<div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 shrink-0 overflow-hidden border border-slate-200 dark:border-zinc-700">
-						<div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">U</div>
+				<div className="p-4 flex gap-3 bg-surface dark:bg-void">
+					<div className="w-10 h-10 rounded-xl bg-parchment-deep dark:bg-void-surface shrink-0 overflow-hidden border border-border-subtle dark:border-void-border">
+						{userImage ? (
+							<img src={userImage} alt="Profile" className="w-full h-full object-cover" />
+						) : (
+							<div className="w-full h-full flex items-center justify-center font-display font-bold text-ink-faint dark:text-cream-faint text-sm">U</div>
+						)}
 					</div>
 					<form className="flex-1" onSubmit={handleSubmit(onSubmit)}>
 						<textarea
 							{...register('description')}
 							placeholder="Post your reply"
-							className="w-full text-lg resize-none border-none focus:ring-0 placeholder:text-slate-300 dark:placeholder:text-zinc-600 py-2 min-h-[60px] text-slate-900 dark:text-white font-medium bg-transparent"
+							className="w-full font-body text-[15px] resize-none border-none focus:ring-0 placeholder:text-ink-faint dark:placeholder:text-cream-faint py-2 min-h-[60px] text-ink dark:text-cream bg-transparent"
 						/>
 						{errors.description && (
-							<p className="text-rose-500 text-xs font-bold uppercase tracking-widest mb-2 ml-1">
+							<p className="text-relay text-xs font-mono font-medium uppercase tracking-wider mb-2 ml-1">
 								{errors.description.message}
 							</p>
 						)}
-						<div className="flex justify-end pt-2 border-t border-slate-50 dark:border-zinc-800">
+						<div className="flex justify-end pt-2 border-t border-border-subtle dark:border-void-border">
 							<button
 								type="submit"
 								disabled={loading}
-								className="bg-indigo-600 text-white px-8 py-2.5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-indigo-500 active:scale-95 disabled:opacity-50 transition-all"
+								className="bg-relay text-white px-6 py-2 rounded-xl font-display font-semibold text-sm hover:bg-relay-hover active:scale-95 disabled:opacity-40 transition-all relay-glow"
 							>
 								Reply
 							</button>
@@ -129,17 +133,16 @@ export const Post: React.FC = () => {
 				</div>
 			)}
 
-			{/* Comments / Thread */}
 			<div className="flex flex-col">
 				{post.comments?.map((comment: any) => (
-					<div key={comment._id} className="p-4 border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-colors">
+					<div key={comment._id} className="p-4 border-b border-border-subtle dark:border-void-border hover:bg-parchment-deep/30 dark:hover:bg-void-surface/50 transition-colors">
 						<div className="flex gap-3">
 							<Link to={`/profile/${comment.creatorId._id}`} className="shrink-0">
-								<div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden border border-slate-200 dark:border-zinc-700">
+								<div className="w-10 h-10 rounded-xl bg-parchment-deep dark:bg-void-surface overflow-hidden border border-border-subtle dark:border-void-border">
 									{comment.creatorId.image ? (
 										<img src={comment.creatorId.image} alt={comment.creatorId.username} className="w-full h-full object-cover" />
 									) : (
-										<div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">
+										<div className="w-full h-full flex items-center justify-center font-display font-bold text-ink-faint dark:text-cream-faint text-sm">
 											{comment.creatorId.username[0].toUpperCase()}
 										</div>
 									)}
@@ -147,12 +150,12 @@ export const Post: React.FC = () => {
 							</Link>
 							<div className="flex-1 min-w-0">
 								<div className="flex items-center gap-1 mb-1">
-									<span className="font-bold text-slate-900 dark:text-white truncate hover:underline">{comment.creatorId.name}</span>
-									<span className="text-slate-500 dark:text-slate-400 text-sm truncate">@{comment.creatorId.username}</span>
-									<span className="text-slate-400 dark:text-zinc-600">·</span>
-									<span className="text-slate-500 dark:text-slate-400 text-xs font-medium italic">Just now</span>
+									<span className="font-display font-semibold text-[14px] text-ink dark:text-cream truncate hover:text-relay transition-colors">{comment.creatorId.name}</span>
+									<span className="font-mono text-[12px] text-ink-faint dark:text-cream-faint truncate">@{comment.creatorId.username}</span>
+									<span className="text-ink-faint dark:text-cream-faint text-xs">·</span>
+									<span className="font-mono text-[11px] text-ink-faint dark:text-cream-faint italic">Just now</span>
 								</div>
-								<p className="text-slate-800 dark:text-slate-200 text-[15px] leading-relaxed">{comment.description}</p>
+								<p className="font-body text-ink/90 dark:text-cream/90 text-[15px] leading-relaxed">{comment.description}</p>
 							</div>
 						</div>
 					</div>

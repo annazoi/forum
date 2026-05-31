@@ -7,6 +7,9 @@ import { useAuthHook } from '../../hooks/authHook';
 import { useEffect } from 'react';
 import { authStore } from '../../store/auth';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { themeStore } from '../../store/theme';
+import { HiMoon, HiSun } from 'react-icons/hi';
 
 interface LoginFormData {
 	email: string;
@@ -17,6 +20,8 @@ export const Login = () => {
 	const { logIn } = authStore((store) => store);
 	const { loginUser, loading, error, data } = useAuthHook();
 	const navigate = useNavigate();
+	const isDark = themeStore((s) => s.isDark);
+	const toggleTheme = themeStore((s) => s.toggle);
 
 	const {
 		register,
@@ -47,27 +52,84 @@ export const Login = () => {
 	};
 
 	return (
-		<div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 animate-in fade-in zoom-in duration-500 min-h-[80vh]">
-			<div className="max-w-md w-full space-y-8 bg-white dark:bg-zinc-900 p-10 rounded-[2.5rem] border border-slate-200 dark:border-zinc-700 relative overflow-hidden">
-				<div className="absolute top-0 left-0 w-full h-2 bg-indigo-600"></div>
-
-				<div className="text-center">
-					<div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-6">
-						<span className="text-white text-3xl font-black">R</span>
-					</div>
-					<h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Welcome Back</h2>
-					<p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-medium italic">
-						Sign in to continue the conversation
-					</p>
+		<div className="min-h-screen flex relative z-[1]">
+			<div className="hidden lg:flex lg:w-[45%] bg-ink dark:bg-void-elevated relative overflow-hidden flex-col justify-between p-12">
+				<div className="absolute inset-0 opacity-20">
+					<div className="absolute top-1/4 -left-20 w-80 h-80 bg-relay rounded-full blur-[120px]" />
+					<div className="absolute bottom-1/4 right-0 w-64 h-64 bg-signal rounded-full blur-[100px]" />
 				</div>
 
-				<form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-					<div className="space-y-4">
+				<div className="relative">
+					<div className="flex items-center gap-3">
+						<img src="/relay.png" alt="Relay" className="h-10 w-auto max-w-[5rem] rounded-md object-contain relay-glow" />
+						<span className="font-display font-extrabold text-2xl text-cream tracking-tight">Relay</span>
+					</div>
+				</div>
+
+				<div className="relative space-y-6">
+					<motion.h1
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.1 }}
+						className="font-display font-extrabold text-4xl xl:text-5xl text-cream leading-[1.1] tracking-tight"
+					>
+						Pass it on.
+						<br />
+						<span className="text-signal">Start the conversation.</span>
+					</motion.h1>
+					<motion.p
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.2 }}
+						className="font-body text-cream/60 text-lg max-w-sm leading-relaxed"
+					>
+						A communication club for people who have something worth sharing.
+					</motion.p>
+				</div>
+
+				<p className="relative font-mono text-[11px] text-cream/30 uppercase tracking-widest">
+					Est. 2026
+				</p>
+			</div>
+
+			<div className="flex-1 flex items-center justify-center p-6 sm:p-10 relative">
+				<button
+					onClick={toggleTheme}
+					className="absolute top-5 right-5 p-2.5 rounded-lg hover:bg-parchment-deep/60 dark:hover:bg-void-surface transition-colors"
+				>
+					{isDark ? (
+						<HiSun className="w-5 h-5 text-signal" />
+					) : (
+						<HiMoon className="w-5 h-5 text-ink-muted" />
+					)}
+				</button>
+
+				<motion.div
+					initial={{ opacity: 0, y: 16 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+					className="w-full max-w-md"
+				>
+					<div className="lg:hidden flex items-center gap-2.5 mb-8">
+						<img src="/relay.png" alt="Relay" className="h-9 w-auto max-w-[4.5rem] rounded-md object-contain" />
+						<span className="font-display font-extrabold text-xl text-ink dark:text-cream">Relay</span>
+					</div>
+
+					<div className="mb-8">
+						<h2 className="font-display font-bold text-2xl text-ink dark:text-cream tracking-tight">
+							Welcome back
+						</h2>
+						<p className="mt-1.5 font-body text-ink-muted dark:text-cream-muted text-[15px]">
+							Sign in to pick up where you left off
+						</p>
+					</div>
+
+					<form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
 						<Input
 							name="email"
 							type="text"
 							placeholder="name@example.com"
-							label="Email Address"
+							label="Email"
 							register={register}
 							error={errors.email?.message}
 						/>
@@ -79,41 +141,30 @@ export const Login = () => {
 							register={register}
 							error={errors.password?.message}
 						/>
-					</div>
 
-					{error && (
-						<div className="p-4 bg-red-50 dark:bg-red-950/50 rounded-2xl border border-red-100 dark:border-red-900/50 flex items-center gap-3">
-							<svg
-								className="w-5 h-5 text-red-500 shrink-0"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
+						{error && (
+							<motion.div
+								initial={{ opacity: 0, y: -4 }}
+								animate={{ opacity: 1, y: 0 }}
+								className="p-3.5 bg-relay/8 border border-relay/20 rounded-xl"
 							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-							<p className="text-xs text-red-600 dark:text-red-400 font-bold">{error}</p>
-						</div>
-					)}
+								<p className="font-mono text-[11px] text-relay">{error}</p>
+							</motion.div>
+						)}
 
-					<Button className="w-full !py-3 !text-base" type="submit" loading={loading} label="Sign In" />
-				</form>
+						<Button className="w-full !py-3" type="submit" loading={loading} label="Sign in" />
+					</form>
 
-				<div className="mt-8 text-center pt-8 border-t border-slate-100 dark:border-zinc-700">
-					<p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-						Don't have an account?{' '}
+					<p className="mt-8 text-center font-body text-sm text-ink-muted dark:text-cream-muted">
+						No account yet?{' '}
 						<Link
 							to="/register"
-							className="text-indigo-600 dark:text-indigo-400 font-black hover:text-indigo-500 hover:underline underline-offset-4 decoration-2 decoration-indigo-200 transition-all"
+							className="font-display font-semibold text-relay hover:text-relay-hover transition-colors"
 						>
-							Register now
+							Join Relay
 						</Link>
 					</p>
-				</div>
+				</motion.div>
 			</div>
 		</div>
 	);

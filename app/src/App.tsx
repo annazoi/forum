@@ -20,10 +20,10 @@ function AppContent() {
 		<AnimatePresence mode="wait">
 			<motion.div
 				key={location.pathname}
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				exit={{ opacity: 0 }}
-				transition={{ duration: 0.2 }}
+				initial={{ opacity: 0, y: 8 }}
+				animate={{ opacity: 1, y: 0 }}
+				exit={{ opacity: 0, y: -8 }}
+				transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
 			>
 				<Routes location={location}>
 					<Route path="/home" element={<Home />} />
@@ -39,7 +39,7 @@ function AppContent() {
 	);
 
 	if (!isLoggedIn) {
-		return <div className="max-w-7xl mx-auto px-4">{routes}</div>;
+		return routes;
 	}
 
 	return <Layout>{routes}</Layout>;
@@ -58,7 +58,7 @@ export const App = () => {
 	}, [isDark]);
 
 	return (
-		<div className="min-h-screen bg-white dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-700 dark:selection:text-indigo-200 transition-colors duration-300">
+		<div className="min-h-screen bg-surface dark:bg-void text-ink dark:text-cream font-body selection:bg-signal/20 dark:selection:bg-signal/30 selection:text-ink dark:selection:text-cream transition-colors duration-500 grain">
 			<BrowserRouter>
 				<AppContent />
 			</BrowserRouter>

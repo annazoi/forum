@@ -42,7 +42,7 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	background-image: linear-gradient(to right, #538a65 0%, #b5b5a1 100%);
+	background-image: linear-gradient(to right, #005f73 0%, #0a9396 100%);
 	transition: 0.5s ease;
 	display: block;
 	z-index: -1;

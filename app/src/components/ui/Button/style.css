@@ -13,11 +13,11 @@
 
 
 .button-primary {
-  background: rgb(93, 112, 108);
+  background: #005f73;
   color: #fff;
 }
 
 .button-danger {
-  background: rgb(70, 47, 47);
+  background: #004552;
   color: #fff;
 }

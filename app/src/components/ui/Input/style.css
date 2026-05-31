@@ -2,22 +2,22 @@
   text-align: center;
   background-color: transparent;
   border: 0;
-  border-bottom: 1px rgb(202, 193, 204) solid;
+  border-bottom: 1px #b8cdd4 solid;
   width: 100%;
   padding: 25px 0;
   font-size: 15px;
-  color: #ffffff;
+  color: #001219;
   letter-spacing: 4px;
   margin: 0 auto;
 }
 
 .input-container:focus {
   outline: 0;
-  border-bottom-color: rgb(255, 255, 255);
+  border-bottom-color: #005f73;
 }
 
 .input-container::placeholder {
-  color: rgb(255, 255, 255);
+  color: #6a8894;
 }
 
 .error-container {

@@ -3,7 +3,7 @@
   padding: 30px;
   line-height: 40px;
   border-radius: 15px;
-  background-color: rgba(134, 112, 144, 0.4);
+  background-color: rgba(0, 95, 115, 0.4);
   /* border: 1px solid #ccc; */
   /* grid-gap: 10px; */
 }
@@ -17,7 +17,7 @@
   padding: 20px;
   line-height: 30px;
   border-radius: 15px;
-  background-color: rgba(134, 112, 144, 0.4);
+  background-color: rgba(0, 95, 115, 0.4);
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
 

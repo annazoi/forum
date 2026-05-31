@@ -2,76 +2,76 @@ import React, { useRef, useState, useEffect } from 'react';
 import { HiOutlineCloudUpload } from 'react-icons/hi';
 
 interface ImagePickerProps {
-    name?: string;
-    onChange: (base64: string) => void;
-    children?: React.ReactNode;
-    value?: string | null;
+	name?: string;
+	onChange: (base64: string) => void;
+	children?: React.ReactNode;
+	value?: string | null;
 }
 
 export const ImagePicker: React.FC<ImagePickerProps> = ({ name = 'image', onChange, children, value }) => {
-    const imageRef = useRef<HTMLInputElement>(null);
-    const [image, setImage] = useState<string | null>(null);
+	const imageRef = useRef<HTMLInputElement>(null);
+	const [image, setImage] = useState<string | null>(null);
 
-    useEffect(() => {
-        setImage(value || null);
-    }, [value]);
+	useEffect(() => {
+		setImage(value || null);
+	}, [value]);
 
-    const handleImageClick = () => {
-        imageRef.current?.click();
-    };
+	const handleImageClick = () => {
+		imageRef.current?.click();
+	};
 
-    const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            makeBase64(file).then((base64) => {
-                setImage(base64);
-                onChange(base64);
-            });
-        }
-    };
+	const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			makeBase64(file).then((base64) => {
+				setImage(base64);
+				onChange(base64);
+			});
+		}
+	};
 
-    const makeBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(file);
+	const makeBase64 = (file: File): Promise<string> => {
+		return new Promise((resolve, reject) => {
+			const fileReader = new FileReader();
+			fileReader.readAsDataURL(file);
 
-            fileReader.onload = () => {
-                resolve(fileReader.result as string);
-            };
+			fileReader.onload = () => {
+				resolve(fileReader.result as string);
+			};
 
-            fileReader.onerror = (error) => {
-                reject(error);
-            };
-        });
-    };
+			fileReader.onerror = (error) => {
+				reject(error);
+			};
+		});
+	};
 
-    return (
-        <div className="flex flex-col items-center justify-center">
-            {children}
-            <input
-                type="file"
-                className="hidden"
-                name={name}
-                onChange={handleImage}
-                accept="image/x-png,image/gif,image/jpeg, image/jpg, image/png"
-                ref={imageRef}
-            />
+	return (
+		<div className="flex flex-col items-center justify-center">
+			{children}
+			<input
+				type="file"
+				className="hidden"
+				name={name}
+				onChange={handleImage}
+				accept="image/x-png,image/gif,image/jpeg, image/jpg, image/png"
+				ref={imageRef}
+			/>
 
-            <div onClick={handleImageClick} className="relative cursor-pointer group">
-                {image ? (
-                    <div className="w-40 h-40 rounded-[2.5rem] overflow-hidden border-8 border-white group-hover:scale-105 transition-transform duration-500 rotate-2 group-hover:rotate-0">
-                        <img className="w-full h-full object-cover" src={image} alt={name} />
-                        <div className="absolute inset-0 bg-indigo-600/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <HiOutlineCloudUpload className="w-10 h-10 text-white" />
-                        </div>
-                    </div>
-                ) : (
-                    <div className="w-32 h-32 bg-indigo-50 rounded-[2rem] flex flex-col items-center justify-center text-indigo-600 border-2 border-dashed border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-300">
-                        <HiOutlineCloudUpload className="w-10 h-10 mb-2" />
-                        <span className="text-xs font-bold uppercase tracking-widest">Update</span>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+			<div onClick={handleImageClick} className="relative cursor-pointer group">
+				{image ? (
+					<div className="w-36 h-36 rounded-2xl overflow-hidden border-2 border-border dark:border-void-border group-hover:scale-[1.03] transition-transform duration-400">
+						<img className="w-full h-full object-cover" src={image} alt={name} />
+						<div className="absolute inset-0 bg-relay/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+							<HiOutlineCloudUpload className="w-8 h-8 text-white" />
+						</div>
+					</div>
+				) : (
+					<div className="w-32 h-32 bg-parchment-deep dark:bg-void-surface rounded-2xl flex flex-col items-center justify-center text-ink-muted dark:text-cream-muted border-2 border-dashed border-border dark:border-void-border group-hover:border-relay/50 group-hover:text-relay transition-all duration-300">
+						<HiOutlineCloudUpload className="w-8 h-8 mb-2" />
+						<span className="font-mono text-[10px] uppercase tracking-widest">Upload</span>
+					</div>
+				)}
+			</div>
+		</div>
+	);
 };

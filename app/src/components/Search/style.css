@@ -5,7 +5,7 @@
 }
 
 .search-content {
-  background-color: rgba(126, 122, 128, 0.5);
+  background-color: rgba(0, 95, 115, 0.5);
   /* color: rgb(43, 40, 40); */
   margin: auto;
   margin-bottom: 30px;
@@ -21,10 +21,10 @@
 }
 
 .search-content::placeholder {
-  color: #4c6254;
+  color: #005f73;
 }
 
 .search-content:focus {
-  border-bottom: 2px solid #4c6254;
+  border-bottom: 2px solid #005f73;
   border-radius: 4px 4px 2px 2px;
 }
